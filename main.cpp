@@ -10,14 +10,17 @@ struct name { //struct for students which will be hashed
   char lname [80];
   int id;
   float gpa;
+  name* next;
 };
 
-name* addStu(name*, int, int&);
-int hashFunc(name, int);
-
+name** addStu(name**, int, int&);
+int hashFunc(int, int);
+name** rehash(name**, int);
+void print(name**);
+void deletehash(name**);
 
 int main() {
-  name* hashtable = new name[100];
+  name** hashtable = new name*[100];
   int id = 100000;
   cout << "Welcome to Student Hashtable" << endl;
   while(true) {
@@ -30,13 +33,21 @@ int main() {
       cin >> adding;
       hashtable = addStu(hashtable, adding, id);
     }
-    
+    else if (strcmp(input, "print") == 0) {
+      print(hashtable);
+    }
+    else if (strcmp(input, "delete") == 0) {
+      deletehash(hashtable);
+    }
+    else if (strcmp(input, "quit") == 0) {
+      break;
+    }
   }
 }
 
-name* addStu(name* hashtable, int numToAdd, int& idIncr) {
+name** addStu(name** hashtable, int numToAdd, int& idIncr) {
   for(int i = 0; i < numToAdd; i++) {
-    name toAdd;
+    name* toAdd;
 
     //Firstname Randomization
     cout << "Please input the file to select firstname from" << endl;
@@ -60,7 +71,7 @@ name* addStu(name* hashtable, int numToAdd, int& idIncr) {
 	  break;
 	}
       }
-      strcpy(toAdd.fname,s);
+      strcpy(toAdd -> fname,s);
     }
     newFile.close();//closes file
 
@@ -86,18 +97,133 @@ name* addStu(name* hashtable, int numToAdd, int& idIncr) {
 	  break;
 	}
       }
-      strcpy(toAdd.lname,s);
+      strcpy(toAdd->lname,s);
     }
-    newFile1.close();//closes file
+    newFile1.close();//closes file 
 
     //Increments id
     idIncr ++;
-    toAdd.id = idIncr;
-    //Will have hash function
+    toAdd -> id = idIncr;
+    int pos = hashFunc(idIncr, sizeof(hashtable));
+    if (hashtable[pos] == NULL) {
+      hashtable[pos] = toAdd;
+    }
+    else {
+      int count = 0;
+      name* chain = hashtable[pos];
+      while(chain -> next != NULL) {
+	count ++;
+	chain = chain -> next;
+      }
+      chain -> next = toAdd;
+      if(count > 1) {
+	rehash(hashtable, sizeof(hashtable));
+      }
+    }
+    int full = 0;
+    for(int j = 0; j < sizeof(hashtable); j++) {
+      if(hashtable[j] != NULL) {
+	full ++;
+      }
+    }
 
+    if (full > sizeof(hashtable)/2) {
+      rehash(hashtable, sizeof(hashtable));
+    }
+    
     //Randomize GPA
     double ingpa = (double)(rand() % 6)/(rand() % 100 + 1);
-    toAdd.gpa = ingpa;
+    toAdd -> gpa = ingpa;
   }
   return hashtable;
+}
+
+int hashFunc(int id, int mod) {
+  int place = id % mod;
+  return place;
+}
+
+name** rehash(name** hashtable, int size) {
+  name** hashtable2 = new name*[size + 100];
+  for (int i = 0; i < size; i++) {
+    if (hashtable[i] != NULL) {
+      name* torehash = hashtable[i];
+      do {
+	int pos = hashFunc(torehash -> id, sizeof(hashtable2));
+	if(hashtable2[pos] == NULL) {
+	  hashtable2[pos] = torehash;
+	  torehash -> next = NULL;
+	}
+	else{
+	  name* nextre = torehash -> next;
+	  torehash -> next = NULL;
+	  int count = 0;
+	  name* chain = hashtable2[pos];
+	  while(chain -> next != NULL) {
+	    count ++;
+	    chain = chain -> next;
+	  }
+	  if(count < 2) {
+	    chain -> next = torehash;
+	  }
+	  else {
+	    hashtable2 = rehash(hashtable, size + 200);
+	    return hashtable2;
+	  }
+	  torehash = nextre;
+	}
+      }while(torehash != NULL);
+    }
+  }
+  return hashtable2;
+}
+
+void print (name** hashtable) {
+  for(int i = 0; i < sizeof(hashtable); i++) {
+    name* chain = hashtable[i];
+    while(chain != NULL) {
+      cout << "Slot: " << i << " Name: " << chain -> fname << " " << chain->lname << " Id: " << chain->id << " GPA: " << chain->gpa << endl;
+      chain = chain -> next;
+    }
+  }
+}
+
+void deletehash(name** hashtable) {
+  cout << "Please input one of the following: add, search, print, or quit" << endl;
+  char* input;
+  cin >> input;
+  int pos = hashFunc(atoi(input), sizeof(hashtable));
+  if (hashtable[pos] != NULL) {
+    name* chain = hashtable[pos];
+    if(chain -> next == NULL) {
+      if(chain -> id == atoi(input)) {
+	hashtable[pos] = NULL;
+	delete chain;
+	cout << "Successful delete" << endl;
+      }
+      else{
+	cout << "The Id was not there" << endl;
+      }
+    }
+    else {
+      bool cond = true;
+      while(chain != NULL && chain -> next != NULL) {
+	if(chain -> next -> id == atoi(input)) {
+	  name* del = chain -> next;
+	  chain -> next = del -> next;
+	  delete del;
+	  cond = false;
+	  chain = chain -> next;
+	  cout << "Successful delete" << endl;
+	}
+      }
+      if (cond == true) {
+	cout << "The Id was not there" << endl;
+      }
+      
+    }
+  }
+  else{
+    cout << "The Id was not there ..." << endl;
+  }
 }
