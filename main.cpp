@@ -3,6 +3,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <stdlib.h> //For testing
+#include <bits/stdc++.h>
 //might need srand
 using namespace std;
 
@@ -11,20 +12,21 @@ struct name { //struct for students which will be hashed
   char lname [80];
   int id;
   float gpa;
-  name* next;
+  name* next = NULL;
 };
 
-name** addStu(name**, int, int&);
+name** addStu(name**, int, int&, int&);
 int hashFunc(int, int);
-name** rehash(name**, int);
-void print(name**);
-void deletehash(name**);
+name** rehash(name**, int&);
+void print(name**, int);
+void deletehash(name**, int);
 
 string getanyname(string*); //for home testing
 
 int main() {
   name** hashtable = new name*[100];
-  int id = 100000;
+  int idinc = 100000;
+  int size = 100;
   cout << "Welcome to Student Hashtable" << endl;
   while(true) {
     cout << "Please input one of the following: add, search, print, or quit" << endl;
@@ -34,13 +36,13 @@ int main() {
       cout << "Please input how many students to add" << endl;
       int adding;
       cin >> adding;
-      hashtable = addStu(hashtable, adding, id);
+      hashtable = addStu(hashtable, adding, idinc, size);
     }
     else if (strcmp(input, "print") == 0) {
-      print(hashtable);
+      print(hashtable, size);
     }
     else if (strcmp(input, "delete") == 0) {
-      deletehash(hashtable);
+      deletehash(hashtable, size);
     }
     else if (strcmp(input, "quit") == 0) {
       break;
@@ -48,10 +50,9 @@ int main() {
   }
 }
 
-name** addStu(name** hashtable, int numToAdd, int& idIncr) {
+name** addStu(name** hashtable, int numToAdd, int& idIncr, int& size) {
   for(int i = 0; i < numToAdd; i++) {
-    name* toAdd;
-
+    name* toAdd = new name();
     /*   //Firstname Randomization
     cout << "Please input the file to select firstname from" << endl;
     char filename[80];//for name of file
@@ -175,42 +176,48 @@ name** addStu(name** hashtable, int numToAdd, int& idIncr) {
       "McNamee"
     };
     fnamestr = getanyname(finame);
-    strcpy(toadd -> fname, fnamestr.c_str());
+    strcpy(toAdd -> fname, fnamestr.c_str());
     lnamestr = getanyname(laname);
-    strcpy(toadd -> lname, lnamestr.c_str());
+    strcpy(toAdd -> lname, lnamestr.c_str());
 
     //Increments id
-    idIncr ++;
+    //cout << "ID bfore: " << idIncr << endl;
+    idIncr += 19;
     toAdd -> id = idIncr;
-    int pos = hashFunc(idIncr, sizeof(hashtable));
+    int pos = hashFunc(idIncr, size);
+    cout << "Pos " << pos << endl;
+    //cout << "ID after: " << idIncr << endl;
+    cout << "hash :" << size;
     if (hashtable[pos] == NULL) {
       hashtable[pos] = toAdd;
+      //cout << "a" << endl;
     }
     else {
       int count = 0;
       name* chain = hashtable[pos];
+      cout << hashtable[pos] -> id;
       while(chain -> next != NULL) {
 	count ++;
 	chain = chain -> next;
       }
       chain -> next = toAdd;
       if(count > 1) {
-	rehash(hashtable, sizeof(hashtable));
+	hashtable = rehash(hashtable, size);
       }
     }
     int full = 0;
-    for(int j = 0; j < sizeof(hashtable); j++) {
+    for(int j = 0; j < size; j++) {
       if(hashtable[j] != NULL) {
 	full ++;
       }
     }
 
-    if (full > sizeof(hashtable)/2) {
-      rehash(hashtable, sizeof(hashtable));
+    if (full > size/2) {
+      rehash(hashtable, size);
     }
     
     //Randomize GPA
-    double ingpa = (double)(rand() % 6)/(rand() % 100 + 1);
+    double ingpa = (double)rand()/(RAND_MAX)*5;
     toAdd -> gpa = ingpa;
   }
   return hashtable;
@@ -221,13 +228,16 @@ int hashFunc(int id, int mod) {
   return place;
 }
 
-name** rehash(name** hashtable, int size) {
-  name** hashtable2 = new name*[size + 100];
-  for (int i = 0; i < size; i++) {
+name** rehash(name** hashtable, int& size) {
+  int rep = size;
+  size = size + 100;
+  name** hashtable2 = new name*[size];
+  for (int i = 0; i < rep; i++) {
     if (hashtable[i] != NULL) {
       name* torehash = hashtable[i];
       do {
-	int pos = hashFunc(torehash -> id, sizeof(hashtable2));
+	//cout << "a" << endl;
+	int pos = hashFunc(torehash -> id, size);
 	if(hashtable2[pos] == NULL) {
 	  hashtable2[pos] = torehash;
 	  torehash -> next = NULL;
@@ -245,7 +255,9 @@ name** rehash(name** hashtable, int size) {
 	    chain -> next = torehash;
 	  }
 	  else {
-	    hashtable2 = rehash(hashtable, size + 200);
+	    size += 100;
+	    //cout << "a" << endl;
+	    hashtable2 = rehash(hashtable, size);
 	    return hashtable2;
 	  }
 	  torehash = nextre;
@@ -253,11 +265,12 @@ name** rehash(name** hashtable, int size) {
       }while(torehash != NULL);
     }
   }
+  //print(hashtable2, size);
   return hashtable2;
 }
 
-void print (name** hashtable) {
-  for(int i = 0; i < sizeof(hashtable); i++) {
+void print (name** hashtable, int size) {
+  for(int i = 0; i < size; i++) {
     name* chain = hashtable[i];
     while(chain != NULL) {
       cout << "Slot: " << i << " Name: " << chain -> fname << " " << chain->lname << " Id: " << chain->id << " GPA: " << chain->gpa << endl;
@@ -266,11 +279,11 @@ void print (name** hashtable) {
   }
 }
 
-void deletehash(name** hashtable) {
+void deletehash(name** hashtable, int size) {
   cout << "Please input one of the following: add, search, print, or quit" << endl;
   char* input;
   cin >> input;
-  int pos = hashFunc(atoi(input), sizeof(hashtable));
+  int pos = hashFunc(atoi(input), size);
   if (hashtable[pos] != NULL) {
     name* chain = hashtable[pos];
     if(chain -> next == NULL) {
