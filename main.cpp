@@ -2,6 +2,7 @@
 #include <cstring>
 #include <fstream>
 #include <cstdlib>
+#include <stdlib.h> //For testing
 //might need srand
 using namespace std;
 
@@ -18,6 +19,8 @@ int hashFunc(int, int);
 name** rehash(name**, int);
 void print(name**);
 void deletehash(name**);
+
+string getanyname(string*); //for home testing
 
 int main() {
   name** hashtable = new name*[100];
@@ -49,7 +52,7 @@ name** addStu(name** hashtable, int numToAdd, int& idIncr) {
   for(int i = 0; i < numToAdd; i++) {
     name* toAdd;
 
-    //Firstname Randomization
+    /*   //Firstname Randomization
     cout << "Please input the file to select firstname from" << endl;
     char filename[80];//for name of file
     cin.ignore();//ignores past cin
@@ -99,7 +102,82 @@ name** addStu(name** hashtable, int numToAdd, int& idIncr) {
       }
       strcpy(toAdd->lname,s);
     }
-    newFile1.close();//closes file 
+    newFile1.close();//closes file */
+
+    //char fnamearray [MAX_NAME_LEN];
+    //char lnamearray [MAX_NAME_LEN];
+    string fnamestr;
+    string lnamestr;
+
+    string* finame = new string[30] {
+      "Aidan", 
+      "Ellie", 
+      "Joe", 
+      "Georgie", 
+      "Biff",
+      "Rory",
+      "Elise",
+      "Collin",
+      "John",
+      "Deandre",
+      "Megan",
+      "Cameron",
+      "Olivia",
+      "Ethan",
+      "Annika",
+      "James",
+      "Claire",
+      "Rohan",
+      "Linnea",
+      "Jeff",
+      "Adriane",
+      "Henry",
+      "Noel",
+      "Jose",
+      "Austin",
+      "Elizabeth",
+      "Jackson",
+      "Jordan",
+      "Gretchen",
+      "Everett"
+    };
+    
+    string* laname = new string[30] {
+      "Smith", 
+      "Klein", 
+      "Johnson", 
+      "Purdy", 
+      "Li",
+      "Price",
+      "Larson",
+      "Christian",
+      "Hernandez",
+      "Rosen",
+      "Blum",
+      "Hamid",
+      "Ingraham",
+      "Kerry",
+      "Hsu",
+      "Singh",
+      "Brogan",
+      "Cole",
+      "Kaplan",
+      "Warner",
+      "Churchill",
+      "Lehman",
+      "Washington",
+      "Lopez",
+      "Coleson",
+      "Hildebrandt",
+      "Peters",
+      "Gould",
+      "Freiling",
+      "McNamee"
+    };
+    fnamestr = getanyname(finame);
+    strcpy(toadd -> fname, fnamestr.c_str());
+    lnamestr = getanyname(laname);
+    strcpy(toadd -> lname, lnamestr.c_str());
 
     //Increments id
     idIncr ++;
@@ -226,4 +304,13 @@ void deletehash(name** hashtable) {
   else{
     cout << "The Id was not there ..." << endl;
   }
+}
+
+string getanyname(string* namearray){
+  int randnum = rand();
+  cout << "randnum = ";
+  cout << randnum;
+  cout << " randnum % 30 = ";
+  cout << (randnum % 30) << endl;
+  return namearray[(randnum % 30)];
 }
