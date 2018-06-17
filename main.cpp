@@ -23,8 +23,8 @@ void print(name**, int);
 void deletehash(name**, int);
 void inittable(name**&, int);
 
-char* getfname(); //for home testing
-char* getlname();
+char* getfname(); //gets first name
+char* getlname(); //gets last name
 
 int main() {
   name** hashtable = new name*[100];
@@ -111,24 +111,20 @@ name** addStu(name** hashtable, int numToAdd, int& idIncr, int& size) {
     }
     newFile1.close();//closes file */
 
-    //char fnamearray [MAX_NAME_LEN];
-    //char lnamearray [MAX_NAME_LEN];
+    
     char* fnamechar = getfname();
     strcpy(toAdd -> fname, fnamechar);
     char* lnamechar = getlname();
     strcpy(toAdd -> lname, lnamechar);
 
     //Increments id
-    //cout << "ID bfore: " << idIncr << endl;
     idIncr += 1;
     toAdd -> id = idIncr;
     int pos = hashFunc(idIncr, size);
     cout << "Pos " << pos << endl;
-    //cout << "ID after: " << idIncr << endl;
     cout << "hash :" << size;
     if (hashtable[pos] == NULL) {
       hashtable[pos] = toAdd;
-      //cout << "a" << endl;
     }
     else {
       int count = 0;
@@ -140,20 +136,9 @@ name** addStu(name** hashtable, int numToAdd, int& idIncr, int& size) {
       }
       chain -> next = toAdd;
       if(count > 2) {
-	//hashtable = rehash(hashtable, size);
 	flag = true;
       }
     }
-    /*int full = 0;
-    for(int j = 0; j < size; j++) {
-      if(hashtable[j] != NULL) {
-	full ++;
-      }
-    }
-
-    if (full > size/2) {
-      hashtable = rehash(hashtable, size);
-      }*/
     
     //Randomize GPA
     double ingpa = (double)rand()/(RAND_MAX)*5;
@@ -216,21 +201,15 @@ name** rehash(name** hashtable, int& size) {
 	    count ++;
 	    chain = chain -> next;
 	  }
-	  //if(count < 3) {
-	    chain -> next = torehash;
-	    //}
-	    if(count > 2) {
-	      flag = true;
-	    //size += 100;
-	    //hashtable2 = rehash(hashtable2, size);
+	  chain -> next = torehash;
+	  if(count > 2) {
+	    flag = true;
 	  }
-	  //torehash = nextre;
 	}
 	torehash = nextre;
       }while(torehash != NULL);
     }
   }
-  //print(hashtable2, size);
   if (flag == true) {
     hashtable2 = rehash(hashtable2, size);
   }
@@ -242,9 +221,8 @@ name** rehash(name** hashtable, int& size) {
   }
   
   if (full > size/2) {
-    hashtable = rehash(hashtable, size);
+    hashtable2 = rehash(hashtable2, size);
   }
-
   return hashtable2;
 }
 
@@ -262,13 +240,13 @@ void print (name** hashtable, int size) {
 
 void deletehash(name** hashtable, int size) {
   cout << "Please input an ID to delete" << endl;
-  char* input;
+  int input;
   cin >> input;
-  int pos = hashFunc(atoi(input), size);
+  int pos = hashFunc(input, size);
   if (hashtable[pos] != NULL) {
     name* chain = hashtable[pos];
     if(chain -> next == NULL) {
-      if(chain -> id == atoi(input)) {
+      if(chain -> id == input) {
 	hashtable[pos] = NULL;
 	delete chain;
 	cout << "Successful delete" << endl;
@@ -278,21 +256,27 @@ void deletehash(name** hashtable, int size) {
       }
     }
     else {
-      bool cond = true;
-      while(chain != NULL && chain -> next != NULL) {
-	if(chain -> next -> id == atoi(input)) {
-	  name* del = chain -> next;
-	  chain -> next = del -> next;
-	  delete del;
-	  cond = false;
+      if (chain -> id == input) {
+	hashtable[pos] = chain -> next;
+	delete chain;
+	cout << "Successful delete" << endl;
+      }
+      else {
+	bool cond = true;
+	while(chain != NULL && chain -> next != NULL) {
+	  if(chain -> next -> id == input) {
+	    name* del = chain -> next;
+	    chain -> next = del -> next;
+	    delete del;
+	    cond = false;
+	    cout << "Successful delete" << endl;
+	  }
 	  chain = chain -> next;
-	  cout << "Successful delete" << endl;
 	}
-      }
-      if (cond == true) {
-	cout << "The Id was not there" << endl;
-      }
-      
+	if (cond == true) {
+	  cout << "The Id was not there" << endl;
+	}
+      } 
     }
   }
   else{
