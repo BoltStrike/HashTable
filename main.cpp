@@ -56,6 +56,7 @@ int main() {
 }
 
 name** addStu(name** hashtable, int numToAdd, int& idIncr, int& size) {
+  bool flag = false;
   for(int i = 0; i < numToAdd; i++) {
     name* toAdd = new name();
     /*   //Firstname Randomization
@@ -139,10 +140,11 @@ name** addStu(name** hashtable, int numToAdd, int& idIncr, int& size) {
       }
       chain -> next = toAdd;
       if(count > 2) {
-	hashtable = rehash(hashtable, size);
+	//hashtable = rehash(hashtable, size);
+	flag = true;
       }
     }
-    int full = 0;
+    /*int full = 0;
     for(int j = 0; j < size; j++) {
       if(hashtable[j] != NULL) {
 	full ++;
@@ -151,22 +153,44 @@ name** addStu(name** hashtable, int numToAdd, int& idIncr, int& size) {
 
     if (full > size/2) {
       hashtable = rehash(hashtable, size);
-    }
+      }*/
     
     //Randomize GPA
     double ingpa = (double)rand()/(RAND_MAX)*5;
     toAdd -> gpa = ingpa;
   }
+  if(flag == true) {
+    hashtable = rehash(hashtable, size);
+  }
+  int full = 0;
+  for(int j = 0; j < size; j++) {
+    if(hashtable[j] != NULL) {
+      full ++;
+    }
+  }
+  
+  if (full > size/2) {
+    hashtable = rehash(hashtable, size);
+  }
+
   return hashtable;
 }
 
 int hashFunc(int id, int mod) {
-  int place = id % mod;
+  int sum = 0;
+  int summing = id;
+  for (int i = 0; i < 6; i++) {
+    sum += sum + summing % 10;
+    summing = summing/10;
+  }
+  int tomod = id * sum;
+  int place = tomod % mod;
   return place;
 }
 
 name** rehash(name** hashtable, int& size) {
   int rep = size;
+  bool flag = false;
   size = size + 100;
   name** hashtable2 = new name*[size];
   inittable(hashtable2, size);
@@ -192,14 +216,13 @@ name** rehash(name** hashtable, int& size) {
 	    count ++;
 	    chain = chain -> next;
 	  }
-	  if(count < 3) {
+	  //if(count < 3) {
 	    chain -> next = torehash;
-	  }
-	  else {
-	    size += 100;
-	    //cout << "a" << endl;
-	    hashtable2 = rehash(hashtable2, size);
-	    //return hashtable2;
+	    //}
+	    if(count > 2) {
+	      flag = true;
+	    //size += 100;
+	    //hashtable2 = rehash(hashtable2, size);
 	  }
 	  //torehash = nextre;
 	}
@@ -208,6 +231,20 @@ name** rehash(name** hashtable, int& size) {
     }
   }
   //print(hashtable2, size);
+  if (flag == true) {
+    hashtable2 = rehash(hashtable2, size);
+  }
+  int full = 0;
+  for(int j = 0; j < size; j++) {
+    if(hashtable[j] != NULL) {
+      full ++;
+    }
+  }
+  
+  if (full > size/2) {
+    hashtable = rehash(hashtable, size);
+  }
+
   return hashtable2;
 }
 
