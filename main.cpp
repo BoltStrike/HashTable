@@ -134,6 +134,7 @@ name** addStu(name** hashtable, int numToAdd, int& idIncr, int& size) {
 	count ++;
 	chain = chain -> next;
       }
+      count ++;
       chain -> next = toAdd;
       if(count > 2) {
 	flag = true;
@@ -190,7 +191,7 @@ name** rehash(name** hashtable, int& size) {
 	int pos = hashFunc(torehash -> id, size);
 	if(hashtable2[pos] == NULL) {
 	  hashtable2[pos] = torehash;
-	  torehash -> next = NULL;
+	  //torehash -> next = NULL;
 	}
 	else{
 	  //name* nextre = torehash -> next;
@@ -202,6 +203,7 @@ name** rehash(name** hashtable, int& size) {
 	    chain = chain -> next;
 	  }
 	  chain -> next = torehash;
+	  count ++;
 	  if(count > 2) {
 	    flag = true;
 	  }
@@ -215,7 +217,7 @@ name** rehash(name** hashtable, int& size) {
   }
   int full = 0;
   for(int j = 0; j < size; j++) {
-    if(hashtable[j] != NULL) {
+    if(hashtable2[j] != NULL) {
       full ++;
     }
   }
