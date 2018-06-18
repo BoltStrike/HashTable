@@ -16,15 +16,15 @@ struct name { //struct for students which will be hashed
   name* next = NULL;
 };
 //prototypes
-name** addStu(name**, int, int&, int&);
+name** addStu(name**, int, int&, int&, char*, char*);
 int hashFunc(int, int);
 name** rehash(name**, int&);
 void print(name**, int);
 void deletehash(name**, int);
 void inittable(name**&, int);
 
-char* getfname(); //gets first name
-char* getlname(); //gets last name
+char* getfname(char*); //gets first name
+char* getlname(char*); //gets last name
 
 int main() {
   name** hashtable = new name*[100];//make first hashtable size 100
@@ -41,7 +41,14 @@ int main() {
       cout << "Please input how many students to add" << endl;
       int adding;
       cin >> adding;
-      hashtable = addStu(hashtable, adding, idinc, size);
+      cout << "Please input the file to select firstname from" << endl;
+      char* filename1 = new char[80];//for name of file
+      cin.ignore();//ignores past cin
+      cin.getline(filename1, 80);//takes in the name cout << "Please input the file to select firstname from" << endl;
+      char* filename2 = new char[80];//for name of file
+      cin.ignore();//ignores past cin
+      cin.getline(filename2, 80);//takes in the name
+      hashtable = addStu(hashtable, adding, idinc, size, filename1, filename2);
     }
     else if (strcmp(input, "print") == 0) {
       print(hashtable, size);
@@ -55,66 +62,13 @@ int main() {
   }
 }
 
-name** addStu(name** hashtable, int numToAdd, int& idIncr, int& size) {
+name** addStu(name** hashtable, int numToAdd, int& idIncr, int& size, char* file1, char* file2) {
   bool flag = false;
   for(int i = 0; i < numToAdd; i++) {
     name* toAdd = new name();
-    /*   //Firstname Randomization
-    cout << "Please input the file to select firstname from" << endl;
-    char filename[80];//for name of file
-    cin.ignore();//ignores past cin
-    cin.getline(filename, 80);//takes in the name
-    ifstream newFile; //new file
-    newFile.open(filename);//opens file with the name put in
-    if (newFile == NULL) {//if file doesn't exist
-      cout << "There was an error reading the file" << endl;
-      return hashtable;
-    }
-    else {
-      int iter = rand() % 100; //number from 0 - 99
-      char s [80]; //will hold number in char array
-      for (int j = 0; j <= iter; j++) {
-	if (newFile.eof() != true) {//while not end of file
-	  newFile.getline(s, 80, ',');//gets line splitting over comma
-	}
-	else { //redundancy
-	  break;
-	}
-      }
-      strcpy(toAdd -> fname,s);
-    }
-    newFile.close();//closes file
-
-    //Lastname Randomization
-    cout << "Please input the file to select lastname from" << endl;
-    char filename1[80];//for name of file
-    cin.ignore();//ignores past cin
-    cin.getline(filename1, 80);//takes in the name
-    ifstream newFile1; //new file
-    newFile1.open(filename1);//opens file with the name put in
-    if (newFile1 == NULL) {//if file doesn't exist
-      cout << "There was an error reading the file" << endl;
-      return hashtable;
-    }
-    else {
-      int iter = rand() % 100; //number from 0 - 99
-      char s [80]; //will hold number in char array
-      for (int j = 0; j <= iter; j++) {
-	if (newFile.eof() != true) {//while not end of file
-	  newFile.getline(s, 80, ',');//gets line splitting over comma
-	}	
-	else { //redundancy
-	  break;
-	}
-      }
-      strcpy(toAdd->lname,s);
-    }
-    newFile1.close();//closes file */
-
-    
-    char* fnamechar = getfname(); //grabs first name
+    char* fnamechar = getfname(file1); //grabs first name
     strcpy(toAdd -> fname, fnamechar); //copies to student
-    char* lnamechar = getlname();//grabs last name
+    char* lnamechar = getlname(file2);//grabs last name
     strcpy(toAdd -> lname, lnamechar); //copies to student
 
     //Increments id
@@ -282,14 +236,49 @@ void deletehash(name** hashtable, int size) {
   }
 }
 
-char* getfname(){
-  int randnum = rand(); //rand number to pull from the array
-  return finame[(randnum % 30)];//pulls first name
+char* getfname(char* filename){
+  char* s = new char[80];
+  ifstream newFile; //new file
+  newFile.open(filename);//opens file with the name put in
+  if (newFile == NULL) {//if file doesn't exist
+    cout << "There was an error reading the file" << endl;
+  }
+  else {
+    int iter = rand() % 5; //number from 0 - 4
+    char s [80]; //will hold number in char array
+    for (int j = 0; j <= iter; j++) {
+      if (newFile.eof() != true) {//while not end of file
+	newFile.getline(s, 80, ',');//gets line splitting over comma
+      }	
+      else { //redundancy
+	break;                                                                                                                                                                   }
+    }    
+  }
+  newFile.close();
+  return s;
 }
 
-char* getlname(){
-  int randnum = rand();//random number
-  return laname[(randnum % 30)]; //pulls random last name
+char* getlname(char* filename){
+  char* s = new char[80];
+  ifstream newFile; //new file
+  newFile.open(filename);//opens file with the name put in
+  if (newFile == NULL) {//if file doesn't exist
+    cout << "There was an error reading the file" << endl;
+  }
+  else {
+    int iter = rand() % 5; //number from 0 - 99
+    char s [80]; //will hold number in char array
+    for (int j = 0; j <= iter-1; j++) {
+      if (newFile.eof() != true) {//while not end of file
+	newFile.getline(s, 80, ',');//gets line splitting over comma
+      }
+      else { //redundancy
+	break;	   
+      }
+    }
+  }
+  newFile.close();
+  return s;                                                                                                                 
 }
 
 void inittable(name**& hashtable, int size) {
