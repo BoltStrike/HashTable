@@ -2,10 +2,6 @@
 #include <cstring>
 #include <fstream>
 #include <cstdlib>
-//#include <stdlib.h> //For testing
-//#include <bits/stdc++.h>
-#include "name.h"
-//might need srand
 using namespace std;
 
 struct name { //struct for students which will be hashed
@@ -45,8 +41,8 @@ int main() {
       char* filename1 = new char[80];//for name of file
       cin.ignore();//ignores past cin
       cin.getline(filename1, 80);//takes in the name
-      char ** file1 = new char*[10];
-      for (int j = 0; j < 10; j ++) {
+      char ** file1 = new char*[40]; //will pass name to get name function
+      for (int j = 0; j < 40; j ++) {//initializes char* in array
 	file1[j] = new char[20];
       }
       char word [20];
@@ -58,44 +54,42 @@ int main() {
       }
       else {
 	int i = 0;
-	while (i < 5) {//while not end of file
+	while (i < 30) {//while not end of file(30 names long)
 	    newFile1.getline(word, 80, ',');//gets line splitting over comma
-	    strcpy(file1[i], word);
-	    cout << file1[i] << endl;
-	  i++;
+	    strcpy(file1[i], word); //copies into array of char*
+	    i++;
 	}
       }
-      newFile1.close();
+      newFile1.close();//cleans up the file
       newFile1.clear();
 
-      char** file2 = new char*[5];
-      for (int j = 0; j < 5; j ++) {
-        file2[j] = new char[20];
+      char** file2 = new char*[40];//will hold all last names
+      for (int j = 0; j < 40; j ++) {
+        file2[j] = new char[20];//initialize pointers within array
       }
       char word1 [20];
 
+      cin.clear();//gets rid of remaining blankspace
       cout << "Please input the file to select second name from" << endl;
       char* filename2 = new char[80];//for name of file
-      cin.ignore();//ignores past cin
+      
       cin.getline(filename2, 80);//takes in the name
 
       ifstream newFile2(filename2);; //new file
-      //newFile1.open(filename2);//opens file with the name put in
       if (!newFile2) {//if file doesn't exist
         cout << "There was an error reading the file" << endl;
       }
       else {
         int i = 0;
-        while (i < 5) {//while not end of file
+        while (i < 30) {//while not end of file
           newFile2.getline(word1, 80, ',');//gets line splitting over comma
-	  strcpy(file2[i], word1);
-	  cout << file2[i] << endl;
-          i++;
+	  strcpy(file2[i], word1); //copies into array of char*
+          i++;//increments
         }
       }
-      newFile2.close();
-      //newFile1.clear();
-      //hashtable = addStu(hashtable, adding, idinc, size, file1, file2);
+      newFile2.close();//cleans up file two
+      newFile2.clear();
+      hashtable = addStu(hashtable, adding, idinc, size, file1, file2); //adds to hashtable
     }
     else if (strcmp(input, "print") == 0) {
       print(hashtable, size);
@@ -111,21 +105,17 @@ int main() {
 
 name** addStu(name** hashtable, int numToAdd, int& idIncr, int& size, char** file1, char** file2) {
   bool flag = false;
-  for(int i = 0; i < numToAdd; i++) {
+  for(int i = 0; i < numToAdd; i++) {//for num of students added
     name* toAdd = new name();
     char* fnamechar = getname(file1); //grabs first name
     strcpy(toAdd -> fname, fnamechar); //copies to student
-    cout << "fname : " << fnamechar << endl;
     char* lnamechar = getname(file2);//grabs last name
     strcpy(toAdd -> lname, lnamechar); //copies to student
-    cout << "lname: " << lnamechar << endl;
     
     //Increments id
     idIncr += 1; //increments id 1
     toAdd -> id = idIncr; // push to student
     int pos = hashFunc(idIncr, size); //gets hash func runs with id
-    cout << "Pos " << pos << endl;
-    cout << "hash :" << size;
     if (hashtable[pos] == NULL) {//if the table is null at point
       hashtable[pos] = toAdd; //puts to add into hashtable
     }
@@ -231,7 +221,7 @@ void print (name** hashtable, int size) {
   for(int i = 0; i < size; i++) { //goes through table 
     chain = hashtable[i];//starts chain at positiion
     while(chain != NULL) {//if not null
-      cout << "Slot: " << i << " Name: " << chain -> fname << " " << chain->lname << " Id: " << chain->id << " GPA: " << chain->gpa << endl;
+      cout << "Slot: " << i << " Name: " << chain -> fname << " " << chain->lname << " Id: " << chain->id << " GPA: " << chain->gpa << endl << endl;
       chain = chain -> next;//print info and goes one down chain
     }
   }
@@ -286,9 +276,9 @@ void deletehash(name** hashtable, int size) {
 }
 
 char* getname(char** namearray){
-  int pos = rand() % 5;
-  char* s = namearray[pos];
-  return s;
+  int pos = rand() % 30; //rand between 0 and 29
+  char* s = namearray[pos]; //pulls name from pos
+  return s;//returns name
 }
 
 void inittable(name**& hashtable, int size) {
