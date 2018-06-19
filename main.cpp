@@ -16,15 +16,14 @@ struct name { //struct for students which will be hashed
   name* next = NULL;
 };
 //prototypes
-name** addStu(name**, int, int&, int&, char*, char*);
+name** addStu(name**, int, int&, int&, char**, char**);
 int hashFunc(int, int);
 name** rehash(name**, int&);
 void print(name**, int);
 void deletehash(name**, int);
 void inittable(name**&, int);
 
-char* getfname(char*); //gets first name
-char* getlname(char*); //gets last name
+char* getname(char**); //gets names
 
 int main() {
   name** hashtable = new name*[100];//make first hashtable size 100
@@ -41,14 +40,62 @@ int main() {
       cout << "Please input how many students to add" << endl;
       int adding;
       cin >> adding;
-      cout << "Please input the file to select firstname from" << endl;
+      
+      cout << "Please input the file to select first name from" << endl;
       char* filename1 = new char[80];//for name of file
       cin.ignore();//ignores past cin
-      cin.getline(filename1, 80);//takes in the name cout << "Please input the file to select firstname from" << endl;
+      cin.getline(filename1, 80);//takes in the name
+      char ** file1 = new char*[10];
+      for (int j = 0; j < 10; j ++) {
+	file1[j] = new char[20];
+      }
+      char word [20];
+
+      ifstream newFile1; //new file
+      newFile1.open(filename1);//opens file with the name put in
+      if (!newFile1) {//if file doesn't exist
+	cout << "There was an error reading the file" << endl;
+      }
+      else {
+	int i = 0;
+	while (i < 5) {//while not end of file
+	    newFile1.getline(word, 80, ',');//gets line splitting over comma
+	    strcpy(file1[i], word);
+	    cout << file1[i] << endl;
+	  i++;
+	}
+      }
+      newFile1.close();
+      newFile1.clear();
+
+      char** file2 = new char*[5];
+      for (int j = 0; j < 5; j ++) {
+        file2[j] = new char[20];
+      }
+      char word1 [20];
+
+      cout << "Please input the file to select second name from" << endl;
       char* filename2 = new char[80];//for name of file
       cin.ignore();//ignores past cin
       cin.getline(filename2, 80);//takes in the name
-      hashtable = addStu(hashtable, adding, idinc, size, filename1, filename2);
+
+      ifstream newFile2(filename2);; //new file
+      //newFile1.open(filename2);//opens file with the name put in
+      if (!newFile2) {//if file doesn't exist
+        cout << "There was an error reading the file" << endl;
+      }
+      else {
+        int i = 0;
+        while (i < 5) {//while not end of file
+          newFile2.getline(word1, 80, ',');//gets line splitting over comma
+	  strcpy(file2[i], word1);
+	  cout << file2[i] << endl;
+          i++;
+        }
+      }
+      newFile2.close();
+      //newFile1.clear();
+      //hashtable = addStu(hashtable, adding, idinc, size, file1, file2);
     }
     else if (strcmp(input, "print") == 0) {
       print(hashtable, size);
@@ -62,15 +109,17 @@ int main() {
   }
 }
 
-name** addStu(name** hashtable, int numToAdd, int& idIncr, int& size, char* file1, char* file2) {
+name** addStu(name** hashtable, int numToAdd, int& idIncr, int& size, char** file1, char** file2) {
   bool flag = false;
   for(int i = 0; i < numToAdd; i++) {
     name* toAdd = new name();
-    char* fnamechar = getfname(file1); //grabs first name
+    char* fnamechar = getname(file1); //grabs first name
     strcpy(toAdd -> fname, fnamechar); //copies to student
-    char* lnamechar = getlname(file2);//grabs last name
+    cout << "fname : " << fnamechar << endl;
+    char* lnamechar = getname(file2);//grabs last name
     strcpy(toAdd -> lname, lnamechar); //copies to student
-
+    cout << "lname: " << lnamechar << endl;
+    
     //Increments id
     idIncr += 1; //increments id 1
     toAdd -> id = idIncr; // push to student
@@ -236,49 +285,10 @@ void deletehash(name** hashtable, int size) {
   }
 }
 
-char* getfname(char* filename){
-  char* s = new char[80];
-  ifstream newFile; //new file
-  newFile.open(filename);//opens file with the name put in
-  if (newFile == NULL) {//if file doesn't exist
-    cout << "There was an error reading the file" << endl;
-  }
-  else {
-    int iter = rand() % 5; //number from 0 - 4
-    char s [80]; //will hold number in char array
-    for (int j = 0; j <= iter; j++) {
-      if (newFile.eof() != true) {//while not end of file
-	newFile.getline(s, 80, ',');//gets line splitting over comma
-      }	
-      else { //redundancy
-	break;                                                                                                                                                                   }
-    }    
-  }
-  newFile.close();
+char* getname(char** namearray){
+  int pos = rand() % 5;
+  char* s = namearray[pos];
   return s;
-}
-
-char* getlname(char* filename){
-  char* s = new char[80];
-  ifstream newFile; //new file
-  newFile.open(filename);//opens file with the name put in
-  if (newFile == NULL) {//if file doesn't exist
-    cout << "There was an error reading the file" << endl;
-  }
-  else {
-    int iter = rand() % 5; //number from 0 - 99
-    char s [80]; //will hold number in char array
-    for (int j = 0; j <= iter-1; j++) {
-      if (newFile.eof() != true) {//while not end of file
-	newFile.getline(s, 80, ',');//gets line splitting over comma
-      }
-      else { //redundancy
-	break;	   
-      }
-    }
-  }
-  newFile.close();
-  return s;                                                                                                                 
 }
 
 void inittable(name**& hashtable, int size) {
